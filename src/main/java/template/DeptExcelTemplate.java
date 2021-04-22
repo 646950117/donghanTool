@@ -82,7 +82,7 @@ public class DeptExcelTemplate implements ExcelTemplate {
         if (!file.exists()) {
             file.mkdir();
         }
-        String dataFormat = new SimpleDateFormat("yyyyMMddhhmmss").format(new Date());
+        String dataFormat = new SimpleDateFormat("yyyyMMddHHmmss").format(new Date());
         File outFile = new File(output + "/回单记录_" + dataFormat + ".xls");
         FileOutputStream fos = new FileOutputStream(outFile);
         wb.write(fos);
