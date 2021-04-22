@@ -14,7 +14,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class DeptExcelTemplate implements ExcelTemplate {
 
@@ -46,6 +48,8 @@ public class DeptExcelTemplate implements ExcelTemplate {
 
     private String day;
 
+    private Map<String, HSSFCellStyle> styleMap;
+
     public DeptExcelTemplate(String output, List<DebtItem> debts, String year, String month, String day) {
         if (CollectionUtil.isEmpty(debts)) {
             throw new IllegalStateException("没有加载到数据！！！");
@@ -61,8 +65,12 @@ public class DeptExcelTemplate implements ExcelTemplate {
 
         //创建HSSFWorkbook对象
         this.wb = new HSSFWorkbook();
+
+        styleMap = new HashMap<>();
         // 初始化sheet
         this.initSheet();
+
+        initStyle();
     }
 
     @Override
@@ -97,54 +105,7 @@ public class DeptExcelTemplate implements ExcelTemplate {
 
     private void writeItem(DebtItem debt, List<Item> items) {
         int lineHeight = 20;
-        HSSFCellStyle common_style = wb.createCellStyle();
-        HSSFFont font_SimSun_12 = wb.createFont();
-        font_SimSun_12.setFontName("宋体"); //字体
-        font_SimSun_12.setFontHeightInPoints((short)12); //字体大小
-        common_style.setVerticalAlignment(VerticalAlignment.CENTER); // 垂直居中
-        common_style.setFont(font_SimSun_12);
 
-        HSSFCellStyle style_SimSun_center_12 = wb.createCellStyle();
-        HSSFFont font_SSimSun_center_12 = wb.createFont();
-        font_SSimSun_center_12.setFontName("宋体"); //字体
-        font_SSimSun_center_12.setFontHeightInPoints((short)12); //字体大小
-        style_SimSun_center_12.setAlignment(HorizontalAlignment.CENTER); // 水平居中
-        style_SimSun_center_12.setVerticalAlignment(VerticalAlignment.CENTER); // 垂直居中
-        style_SimSun_center_12.setFont(font_SSimSun_center_12);
-
-        HSSFCellStyle kaiti_style = wb.createCellStyle();
-        HSSFFont font_kaiti_12 = wb.createFont();
-        font_kaiti_12.setFontName("楷体_GB2312"); //字体
-        font_kaiti_12.setFontHeightInPoints((short)12); //字体大小
-        kaiti_style.setVerticalAlignment(VerticalAlignment.CENTER); // 垂直居中
-        kaiti_style.setFont(font_kaiti_12);
-
-        HSSFCellStyle kaiti_center_12_style = wb.createCellStyle();
-        kaiti_center_12_style.setFont(font_kaiti_12);
-        kaiti_center_12_style.setAlignment(HorizontalAlignment.CENTER); // 水平居中
-        kaiti_center_12_style.setVerticalAlignment(VerticalAlignment.CENTER); // 垂直居中
-
-        HSSFCellStyle style_font_KaiTi_bold_12 = wb.createCellStyle();
-        HSSFFont font_simSun_bold_12 = wb.createFont();
-        font_simSun_bold_12.setFontName("楷体_GB2312"); //字体
-        font_simSun_bold_12.setFontHeightInPoints((short)12); //字体大小
-        font_simSun_bold_12.setBold(true); //字体加粗
-        style_font_KaiTi_bold_12.setFont(font_simSun_bold_12);
-        style_font_KaiTi_bold_12.setVerticalAlignment(VerticalAlignment.CENTER); // 垂直居中
-
-        HSSFCellStyle style_SimSun_10 = wb.createCellStyle();
-        style_SimSun_10.setRotation((short)255); // 文字竖列排版
-        style_SimSun_10.setAlignment(HorizontalAlignment.CENTER); // 水平居中
-        style_SimSun_10.setVerticalAlignment(VerticalAlignment.CENTER); // 垂直居中
-        HSSFFont font_SimSun_10 = wb.createFont();
-        font_SimSun_10.setFontName("宋体"); //字体
-        font_SimSun_10.setFontHeightInPoints((short)10); //字体大小
-        style_SimSun_10.setFont(font_SimSun_10);
-
-        HSSFCellStyle moneyStyle = wb.createCellStyle();
-        moneyStyle.setAlignment(HorizontalAlignment.CENTER); // 水平居中
-        moneyStyle.setFont(font_SimSun_12);
-        moneyStyle.setDataFormat(HSSFDataFormat.getBuiltinFormat("#,##0.00"));
 
         HSSFRow row_1 = sheet.createRow(currentRowIndex);
         row_1.setHeightInPoints(lineHeight);
@@ -168,7 +129,7 @@ public class DeptExcelTemplate implements ExcelTemplate {
         sheet.addMergedRegion(new CellRangeAddress(currentRowIndex + 2, currentRowIndex + 10,0,0));
         HSSFCell cell_10_0 = row_2.createCell(0);
         cell_10_0.setCellValue("︵东醪司︶财务部制");
-        cell_10_0.setCellStyle(style_SimSun_10);
+        cell_10_0.setCellStyle(styleMap.get("style_SimSun_10"));
         HSSFCell cell_2_1 = row_2.createCell(1);
         cell_2_1.setCellValue("单位名称：");
         HSSFCellStyle cell_2_1_style = wb.createCellStyle();
@@ -182,59 +143,59 @@ public class DeptExcelTemplate implements ExcelTemplate {
         HSSFCell cell_2_2 = row_2.createCell(2);
         cell_2_2.setCellValue(debt.getCustom());
         sheet.addMergedRegion(new CellRangeAddress(currentRowIndex + 2, currentRowIndex + 2,2,7));
-        cell_2_2.setCellStyle(common_style);
+        cell_2_2.setCellStyle(styleMap.get("common_style"));
         HSSFCell cell_2_8 = row_2.createCell(8);
         cell_2_8.setCellValue(year + "年");
-        cell_2_8.setCellStyle(kaiti_style);
+        cell_2_8.setCellStyle(styleMap.get("kaiti_style"));
         HSSFCell cell_2_9 = row_2.createCell(9);
         cell_2_9.setCellValue(month);
-        cell_2_9.setCellStyle(kaiti_center_12_style);
+        cell_2_9.setCellStyle(styleMap.get("kaiti_center_12_style"));
         HSSFCell cell_2_10 = row_2.createCell(10);
         cell_2_10.setCellValue("月");
-        cell_2_10.setCellStyle(kaiti_style);
+        cell_2_10.setCellStyle(styleMap.get("kaiti_style"));
         HSSFCell cell_2_11 = row_2.createCell(11);
         cell_2_11.setCellValue(day);
-        cell_2_11.setCellStyle(kaiti_center_12_style);
+        cell_2_11.setCellStyle(styleMap.get("kaiti_center_12_style"));
         HSSFCell cell_2_12 = row_2.createCell(12);
         cell_2_12.setCellValue("日");
-        cell_2_12.setCellStyle(kaiti_style);
+        cell_2_12.setCellStyle(styleMap.get("kaiti_style"));
         HSSFCell cell_2_13 = row_2.createCell(13);
         cell_2_13.setCellValue("编号：");
-        cell_2_13.setCellStyle(common_style);
+        cell_2_13.setCellStyle(styleMap.get("common_style"));
         HSSFCell cell_2_14 = row_2.createCell(14);
         cell_2_14.setCellValue("L2001001");
-        cell_2_14.setCellStyle(common_style);
+        cell_2_14.setCellStyle(styleMap.get("common_style"));
         HSSFCell cell_2_15 = row_2.createCell(15);
         sheet.addMergedRegion(new CellRangeAddress(currentRowIndex + 2, currentRowIndex + 10,15,15));
         cell_2_15.setCellValue("二 发货单位记账联");
-        cell_2_15.setCellStyle(style_SimSun_10);
+        cell_2_15.setCellStyle(styleMap.get("style_SimSun_10"));
 
         HSSFRow row_3 = sheet.createRow(currentRowIndex + 3);
         row_3.setHeightInPoints(lineHeight);
         HSSFCell cell_3_1 = row_3.createCell(1);
         cell_3_1.setCellValue("产品名称");
-        cell_3_1.setCellStyle(kaiti_center_12_style);
+        cell_3_1.setCellStyle(styleMap.get("kaiti_center_12_style"));
         sheet.addMergedRegion(new CellRangeAddress(currentRowIndex + 3, currentRowIndex + 3,1,2));
         HSSFCell cell_3_3 = row_3.createCell(3);
         cell_3_3.setCellValue("单位");
-        cell_3_3.setCellStyle(kaiti_center_12_style);
+        cell_3_3.setCellStyle(styleMap.get("kaiti_center_12_style"));
         HSSFCell cell_3_4 = row_3.createCell(4);
         cell_3_4.setCellValue("总发数");
-        cell_3_4.setCellStyle(kaiti_center_12_style);
+        cell_3_4.setCellStyle(styleMap.get("kaiti_center_12_style"));
         HSSFCell cell_3_5 = row_3.createCell(5);
         cell_3_5.setCellValue("计价数");
-        cell_3_5.setCellStyle(kaiti_center_12_style);
+        cell_3_5.setCellStyle(styleMap.get("kaiti_center_12_style"));
         HSSFCell cell_3_6 = row_3.createCell(6);
         cell_3_6.setCellValue("单价");
         sheet.addMergedRegion(new CellRangeAddress(currentRowIndex + 3, currentRowIndex + 3,6,7));
-        cell_3_6.setCellStyle(kaiti_center_12_style);
+        cell_3_6.setCellStyle(styleMap.get("kaiti_center_12_style"));
         HSSFCell cell_3_8 = row_3.createCell(8);
         cell_3_8.setCellValue("金额");
-        cell_3_8.setCellStyle(kaiti_center_12_style);
+        cell_3_8.setCellStyle(styleMap.get("kaiti_center_12_style"));
         sheet.addMergedRegion(new CellRangeAddress(currentRowIndex + 3, currentRowIndex + 3,8,12));
         HSSFCell cell_3_13 = row_3.createCell(13);
         cell_3_13.setCellValue("备注");
-        cell_3_13.setCellStyle(kaiti_center_12_style);
+        cell_3_13.setCellStyle(styleMap.get("kaiti_center_12_style"));
         sheet.addMergedRegion(new CellRangeAddress(currentRowIndex + 3, currentRowIndex + 3,13,14));
 
         // 回拨单合计
@@ -254,29 +215,29 @@ public class DeptExcelTemplate implements ExcelTemplate {
             if (item != null) {
                 HSSFCell cell_1 = row.createCell(1); //产品名称
                 cell_1.setCellValue(item.getName());
-                cell_1.setCellStyle(style_SimSun_center_12);
+                cell_1.setCellStyle(styleMap.get("style_SimSun_center_12"));
                 HSSFCell cell_3 = row.createCell(3); // 单位
                 cell_3.setCellValue(item.getUnit());
-                cell_3.setCellStyle(style_SimSun_center_12);
+                cell_3.setCellStyle(styleMap.get("style_SimSun_center_12"));
                 HSSFCell cell_4 = row.createCell(4); // 总发数
                 int totalCount = (int)Double.parseDouble(item.getCount());
                 cell_4.setCellValue(totalCount);
-                cell_4.setCellStyle(style_SimSun_center_12);
+                cell_4.setCellStyle(styleMap.get("style_SimSun_center_12"));
                 HSSFCell cell_5 = row.createCell(5); // 计价数
                 cell_5.setCellValue(totalCount);
-                cell_5.setCellStyle(style_SimSun_center_12);
+                cell_5.setCellStyle(styleMap.get("style_SimSun_center_12"));
                 HSSFCell cell_6 = row.createCell(6); // 单价
                 cell_6.setCellValue(Double.parseDouble(item.getPrice()));
-                cell_6.setCellStyle(moneyStyle);
+                cell_6.setCellStyle(styleMap.get("moneyStyle"));
                 HSSFCell cell_8 = row.createCell(8); // 金额
-                cell_8.setCellStyle(moneyStyle);
+                cell_8.setCellStyle(styleMap.get("moneyStyle"));
                 double price = totalCount * Double.parseDouble(item.getPrice());
                 cell_8.setCellValue(price);
                 HSSFCell cell_13 = row.createCell(13); // 备注
                 total += price;
             } else {
                 HSSFCell cell_8 = row.createCell(8); // 金额
-                cell_8.setCellStyle(moneyStyle);
+                cell_8.setCellStyle(styleMap.get("moneyStyle"));
                 cell_8.setCellValue(Double.parseDouble("0"));
             }
 
@@ -285,7 +246,7 @@ public class DeptExcelTemplate implements ExcelTemplate {
         row_9.setHeightInPoints(lineHeight);
         HSSFCell cell_9_1 = row_9.createCell(1);
         cell_9_1.setCellValue("合计");
-        cell_9_1.setCellStyle(kaiti_center_12_style);
+        cell_9_1.setCellStyle(styleMap.get("kaiti_center_12_style"));
         sheet.addMergedRegion(new CellRangeAddress(currentRowIndex + 9, currentRowIndex + 9,1,2));
         HSSFCell cell_9_6 = row_9.createCell(6);
         sheet.addMergedRegion(new CellRangeAddress(currentRowIndex + 9, currentRowIndex + 9,6,7));
@@ -294,6 +255,9 @@ public class DeptExcelTemplate implements ExcelTemplate {
         HSSFCellStyle coin_style = wb.createCellStyle();
         HSSFDataFormat coinFormat = wb.createDataFormat();
         coin_style.setDataFormat(coinFormat.getFormat("¥#,##0.00"));
+        HSSFFont font_SSimSun_center_12 = wb.createFont();
+        font_SSimSun_center_12.setFontName("宋体"); //字体
+        font_SSimSun_center_12.setFontHeightInPoints((short)12); //字体大小
         coin_style.setFont(font_SSimSun_center_12);
         coin_style.setAlignment(HorizontalAlignment.CENTER); // 水平居中
         cell_9_8.setCellStyle(coin_style);
@@ -303,10 +267,10 @@ public class DeptExcelTemplate implements ExcelTemplate {
         row_10.setHeightInPoints(lineHeight);
         HSSFCell cell_10_1 = row_10.createCell(1);
         cell_10_1.setCellValue("金额合计(大写)");
-        cell_10_1.setCellStyle(kaiti_center_12_style);
+        cell_10_1.setCellStyle(styleMap.get("kaiti_center_12_style"));
         HSSFCell cell_10_3 = row_10.createCell(3);
         cell_10_3.setCellValue(new Rmb(total).toHanStr());
-        cell_10_3.setCellStyle(style_SimSun_center_12);
+        cell_10_3.setCellStyle(styleMap.get("style_SimSun_center_12"));
         sheet.addMergedRegion(new CellRangeAddress(currentRowIndex + 10, currentRowIndex + 10,1,2));
         sheet.addMergedRegion(new CellRangeAddress(currentRowIndex + 10, currentRowIndex + 10,3,14));
 
@@ -314,29 +278,29 @@ public class DeptExcelTemplate implements ExcelTemplate {
         row_11.setHeightInPoints(lineHeight);
         HSSFCell cell_11_1 = row_11.createCell(1);
         cell_11_1.setCellValue("业务主管：");
-        cell_11_1.setCellStyle(style_font_KaiTi_bold_12);
+        cell_11_1.setCellStyle(styleMap.get("style_font_KaiTi_bold_12"));
         HSSFCell cell_11_3 = row_11.createCell(3);
         cell_11_3.setCellValue("发货：");
-        cell_11_3.setCellStyle(style_font_KaiTi_bold_12);
+        cell_11_3.setCellStyle(styleMap.get("style_font_KaiTi_bold_12"));
         HSSFCell cell_11_4 = row_11.createCell(4);
         cell_11_4.setCellValue("陈财友");
-        cell_11_4.setCellStyle(kaiti_style);
+        cell_11_4.setCellStyle(styleMap.get("kaiti_style"));
         HSSFCell cell_11_6 = row_11.createCell(6);
         cell_11_6.setCellValue("收货：");
-        cell_11_6.setCellStyle(style_font_KaiTi_bold_12);
+        cell_11_6.setCellStyle(styleMap.get("style_font_KaiTi_bold_12"));
         HSSFCell cell_11_7 = row_11.createCell(7);
         sheet.addMergedRegion(new CellRangeAddress(currentRowIndex + 11, currentRowIndex + 11,7,8));
         HSSFCell cell_11_9 = row_11.createCell(9);
         cell_11_9.setCellValue("承运：");
-        cell_11_9.setCellStyle(style_font_KaiTi_bold_12);
+        cell_11_9.setCellStyle(styleMap.get("style_font_KaiTi_bold_12"));
         sheet.addMergedRegion(new CellRangeAddress(currentRowIndex + 11, currentRowIndex + 11,9,10));
         HSSFCell cell_11_11 = row_11.createCell(11);
         cell_11_11.setCellValue("制单：");
-        cell_11_11.setCellStyle(style_font_KaiTi_bold_12);
+        cell_11_11.setCellStyle(styleMap.get("style_font_KaiTi_bold_12"));
         sheet.addMergedRegion(new CellRangeAddress(currentRowIndex + 11, currentRowIndex + 11,11,12));
         HSSFCell cell_11_13 = row_11.createCell(13);
         cell_11_13.setCellValue("马峰");
-        cell_11_13.setCellStyle(kaiti_style);
+        cell_11_13.setCellStyle(styleMap.get("kaiti_style"));
         sheet.addMergedRegion(new CellRangeAddress(currentRowIndex + 11, currentRowIndex + 11,13,14));
         currentRowIndex +=13;
     }
@@ -360,5 +324,63 @@ public class DeptExcelTemplate implements ExcelTemplate {
         sheet.setColumnWidth(13, (int)(256*5.8+400));
         sheet.setColumnWidth(14, 2500);
         sheet.setColumnWidth(15, 750);
+    }
+
+    private void initStyle() {
+        HSSFCellStyle common_style = wb.createCellStyle();
+        HSSFFont font_SimSun_12 = wb.createFont();
+        font_SimSun_12.setFontName("宋体"); //字体
+        font_SimSun_12.setFontHeightInPoints((short)12); //字体大小
+        common_style.setVerticalAlignment(VerticalAlignment.CENTER); // 垂直居中
+        common_style.setFont(font_SimSun_12);
+        styleMap.put("common_style", common_style);
+
+        HSSFCellStyle style_SimSun_center_12 = wb.createCellStyle();
+        HSSFFont font_SSimSun_center_12 = wb.createFont();
+        font_SSimSun_center_12.setFontName("宋体"); //字体
+        font_SSimSun_center_12.setFontHeightInPoints((short)12); //字体大小
+        style_SimSun_center_12.setAlignment(HorizontalAlignment.CENTER); // 水平居中
+        style_SimSun_center_12.setVerticalAlignment(VerticalAlignment.CENTER); // 垂直居中
+        style_SimSun_center_12.setFont(font_SSimSun_center_12);
+        styleMap.put("style_SimSun_center_12", style_SimSun_center_12);
+
+        HSSFCellStyle kaiti_style = wb.createCellStyle();
+        HSSFFont font_kaiti_12 = wb.createFont();
+        font_kaiti_12.setFontName("楷体_GB2312"); //字体
+        font_kaiti_12.setFontHeightInPoints((short)12); //字体大小
+        kaiti_style.setVerticalAlignment(VerticalAlignment.CENTER); // 垂直居中
+        kaiti_style.setFont(font_kaiti_12);
+        styleMap.put("kaiti_style", kaiti_style);
+
+        HSSFCellStyle kaiti_center_12_style = wb.createCellStyle();
+        kaiti_center_12_style.setFont(font_kaiti_12);
+        kaiti_center_12_style.setAlignment(HorizontalAlignment.CENTER); // 水平居中
+        kaiti_center_12_style.setVerticalAlignment(VerticalAlignment.CENTER); // 垂直居中
+        styleMap.put("kaiti_center_12_style", kaiti_center_12_style);
+
+        HSSFCellStyle style_font_KaiTi_bold_12 = wb.createCellStyle();
+        HSSFFont font_simSun_bold_12 = wb.createFont();
+        font_simSun_bold_12.setFontName("楷体_GB2312"); //字体
+        font_simSun_bold_12.setFontHeightInPoints((short)12); //字体大小
+        font_simSun_bold_12.setBold(true); //字体加粗
+        style_font_KaiTi_bold_12.setFont(font_simSun_bold_12);
+        style_font_KaiTi_bold_12.setVerticalAlignment(VerticalAlignment.CENTER); // 垂直居中
+        styleMap.put("style_font_KaiTi_bold_12", style_font_KaiTi_bold_12);
+
+        HSSFCellStyle style_SimSun_10 = wb.createCellStyle();
+        style_SimSun_10.setRotation((short)255); // 文字竖列排版
+        style_SimSun_10.setAlignment(HorizontalAlignment.CENTER); // 水平居中
+        style_SimSun_10.setVerticalAlignment(VerticalAlignment.CENTER); // 垂直居中
+        HSSFFont font_SimSun_10 = wb.createFont();
+        font_SimSun_10.setFontName("宋体"); //字体
+        font_SimSun_10.setFontHeightInPoints((short)10); //字体大小
+        style_SimSun_10.setFont(font_SimSun_10);
+        styleMap.put("style_SimSun_10", style_SimSun_10);
+
+        HSSFCellStyle moneyStyle = wb.createCellStyle();
+        moneyStyle.setAlignment(HorizontalAlignment.CENTER); // 水平居中
+        moneyStyle.setFont(font_SimSun_12);
+        moneyStyle.setDataFormat(HSSFDataFormat.getBuiltinFormat("#,##0.00"));
+        styleMap.put("moneyStyle", moneyStyle);
     }
 }

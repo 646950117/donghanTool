@@ -150,10 +150,10 @@ public class ReceivablesImport implements ExcelImport {
             String name = itemName.get(i);
             String unit = itemUnit.get(i);
             Cell countCell = row.getCell(i * 3 + 2); //数量
-            countCell.setCellType(CellType.STRING);
             Cell unitCell = row.getCell(i * 3 + 3); //单价
             Cell priceCell = row.getCell(i * 3 + 4); //金额
-            if (countCell != null && !"".equals(countCell.toString()) && !"0".equals(countCell.toString())) {
+
+            if (countCell != null && !"".equals(countCell.toString()) && !"0".equals(countCell.toString()) && !"0.0".equals(countCell.toString())) {
                 if (unitCell == null || priceCell == null) {
                     throw new IllegalStateException("代码：[" + code + "], 物品：[" + name + "]数据有误，请检查后再执行！");
                 }
