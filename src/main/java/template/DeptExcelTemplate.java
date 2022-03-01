@@ -97,7 +97,10 @@ public class DeptExcelTemplate implements ExcelTemplate {
 
     @Override
     public void write() throws Exception {
-        int p = debts.size() / 31 + 1; //每份条数
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(new SimpleDateFormat("yyyyMM").parse(year + month));
+        int actualDay =calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+        int p = debts.size() / actualDay + 1; //每份条数
         for (int i = 0;i < debts.size();i++) {
             writeDept(debts.get(i), i/p + 1);
         }
@@ -167,8 +170,8 @@ public class DeptExcelTemplate implements ExcelTemplate {
         HSSFCell cell_2_11 = row_2.createCell(11);
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(new SimpleDateFormat("yyyyMM").parse(year + month));
-        int actualDay =calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
-        cell_2_11.setCellValue(new Random().nextInt(actualDay) + 1);
+//        int actualDay =calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+        cell_2_11.setCellValue(day);
         cell_2_11.setCellStyle(styleMap.get("kaiti_center_12_style"));
         HSSFCell cell_2_12 = row_2.createCell(12);
         cell_2_12.setCellValue("日");
