@@ -130,7 +130,7 @@ public class ReceivablesImport implements ExcelImport {
         for (int i = dataRowNum;i < totalRows;i++) {
             Row row = inSheet.getRow(i);
             Cell firstCell = row.getCell(0);
-            if (firstCell == null) {
+            if (!(firstCell != null && !"".equals(firstCell.toString()))) {
                 break;
             }
             DebtItem debtItem = build(row);
